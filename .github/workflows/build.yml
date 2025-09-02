@@ -3,21 +3,33 @@ name: Build Echo AI
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
+      # Step 1: Checkout the repository
       - uses: actions/checkout@v3
 
-      # Generate js/echo.js with secret
-      - name: Inject OpenAI Key
-        run: |
-          mkdir -p js
-          echo "const OPENAI_API_KEY = '${{ secrets.OPENAI_API_KEY }}';" > js/echo.js
-          echo "console.log('Echo.js generated')" >> js/echo.js
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
 
-      # Deploy to GitHub Pages
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Run your Echo AI script securely
+      - name: Run Echo AI
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: node run-echo-ai.js
+
+      # Step 5: Deploy everything to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
