@@ -5,7 +5,6 @@
   <title>Echo AI — ELM-1</title>
   <style>
     body { font-family: system-ui, sans-serif; margin: 2rem; background:#f7f7f7; }
-    h1 { margin-bottom: 1rem; }
     #q { width: 60%; padding: .5rem; font-size: 1rem; }
     button { padding: .5rem 1rem; margin-left: .5rem; }
     #out { margin-top: 2rem; white-space: pre-wrap; background:#fff; padding:1rem; border:1px solid #ddd; }
@@ -20,7 +19,7 @@
   <script>
   // ⚠️ Replace with your real credentials
   const API_KEY = "AIzaSyBTkGdlxSzGzbNIDf_zTmPCHQspROJ5FYk";
-  const CX_ID   = "8504b5117a0734987";
+  const CX_ID   = "8504b5117a0734987"; // EchoSearch engine ID
 
   async function ask() {
     const q = document.getElementById('q').value.trim();
@@ -33,20 +32,23 @@
       const res = await fetch(url);
       const data = await res.json();
 
-      if (!data.items) {
+      if (!data.items || !data.items.length) {
         out.textContent = "No results found.";
         return;
       }
 
-      let answer = "";
-      let sources = [];
-      data.items.slice(0, 5).forEach((item, i) => {
-        answer += `${item.snippet} [S${i+1}]\n\n`;
-        sources.push(`[S${i+1}] <a href="${item.link}" target="_blank">${item.title}</a>`);
-      });
+      const top = data.items[0];
 
-      out.innerHTML = "<strong>Answer:</strong><br>" + answer.trim().replace(/\n/g,"<br>") +
-                      "<br><br><strong>Sources:</strong><br>" + sources.join("<br>");
+      // Only use meta description
+      let answer = "No description available.";
+      if (top.pagemap && top.pagemap.metatags && top.pagemap.metatags[0] && top.pagemap.metatags[0].description) {
+        answer = top.pagemap.metatags[0].description;
+      }
+
+      const source = `<a href="${top.link}" target="_blank">${top.title}</a>`;
+
+      out.innerHTML = "<strong>Answer:</strong><br>" + answer +
+                      "<br><br><strong>Source:</strong><br>" + source;
     } catch (e) {
       out.textContent = "Error: " + e.message;
     }
