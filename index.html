@@ -19,7 +19,7 @@
   <script>
   // ⚠️ Replace with your real credentials
   const API_KEY = "AIzaSyBTkGdlxSzGzbNIDf_zTmPCHQspROJ5FYk";
-  const CX_ID   = "8504b5117a0734987"; // EchoSearch engine ID
+  const CX_ID   = "8504b5117a0734987";
 
   async function ask() {
     const q = document.getElementById('q').value.trim();
@@ -39,10 +39,11 @@
 
       const top = data.items[0];
 
-      // Only use meta description
-      let answer = "No description available.";
+      let answer = "No description or snippet available.";
       if (top.pagemap && top.pagemap.metatags && top.pagemap.metatags[0] && top.pagemap.metatags[0].description) {
         answer = top.pagemap.metatags[0].description;
+      } else if (top.snippet) {
+        answer = top.snippet;
       }
 
       const source = `<a href="${top.link}" target="_blank">${top.title}</a>`;
